@@ -45,9 +45,9 @@ func UpdateBook(c *fiber.Ctx) {
 	id := c.Params("id")
 	db := database.DBConn
 
-	args := new(Book)
+	body := new(Book)
 
-	if err := c.BodyParser(args); err != nil {
+	if err := c.BodyParser(body); err != nil {
 		c.Status(503).Send(err)
 		return
 	}
@@ -59,11 +59,8 @@ func UpdateBook(c *fiber.Ctx) {
 		return
 	}
 
-	book.Title = args.Title
-	book.Author = args.Author
-	book.PublishedAt = args.PublishedAt
+	db.Model(&book).Updates(body)
 
-	db.Save(&book)
 	c.Send("Book successfully updated")
 }
 
