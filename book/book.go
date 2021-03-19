@@ -1,9 +1,25 @@
 package book
 
-import "github.com/gofiber/fiber"
+import (
+	"time"
+
+	"github.com/gofiber/fiber"
+	"github.com/jinzhu/gorm"
+	"github.com/kazuki0924/go-fiber/database"
+)
+
+type Book struct {
+	gorm.Model
+	Title       string    `json:"title"`
+	Author      string    `json:"author"`
+	PublishedAt time.Time `json:"published_at"`
+}
 
 func GetBook(c *fiber.Ctx) {
-	c.Send("A Single Book")
+	db := database.DBConn
+	var books []Book
+	db.Find((&books))
+	c.JSON(books)
 }
 
 func ListBooks(c *fiber.Ctx) {
