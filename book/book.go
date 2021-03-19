@@ -30,10 +30,6 @@ func ListBooks(c *fiber.Ctx) {
 
 func CreateBook(c *fiber.Ctx) {
 	db := database.DBConn
-	// var book Book
-	// book.Title = "1984"
-	// book.Author = "George Orwell"
-	// book.PublishedAt = "1949-06-08"
 
 	book := new(Book)
 	if err := c.BodyParser(book); err != nil {
@@ -46,18 +42,42 @@ func CreateBook(c *fiber.Ctx) {
 }
 
 func UpdateBook(c *fiber.Ctx) {
-	c.Send("Updates a book")
-}
-
-func DeleteBook(c *fiber.Ctx) {
 	id := c.Params("id")
 	db := database.DBConn
+
+	args := new(Book)
+
+	if err := c.BodyParser(args); err != nil {
+		c.Status(503).Send(err)
+		return
+	}
+
 	var book Book
 	db.First(&book, id)
 	if book.Title == "" {
 		c.Status(500).Send("No book found with given ID")
 		return
 	}
+
+	book.Title = args.Title
+	book.Author = args.Author
+	book.PublishedAt = args.PublishedAt
+
+	db.Save(&book)
+	c.Send("Book successfully updated")
+}
+
+func DeleteBook(c *fiber.Ctx) {
+	id := c.Params("id")
+	db := database.DBConn
+
+	var book Book
+	db.First(&book, id)
+	if book.Title == "" {
+		c.Status(500).Send("No book found with given ID")
+		return
+	}
+
 	db.Delete(&book)
 	c.Send("Book successfully deleted")
 }
